@@ -1,0 +1,116 @@
+---
+title: "Happiness Score"
+author: "Pooja Rathee"
+date: '2022-04-12'
+output:
+  pdf_document: default
+  html_document: default
+---
+# Install required packages
+```{r setup, include=FALSE}
+library("tidyverse")
+library(ggplot2)
+```
+
+## Read the files
+
+```{r data}
+Hscore_2015 <- read_csv("data/2015.csv")
+Hscore_2016 <- read_csv("data/2016.csv")
+Hscore_2017 <- read_csv("data/2017.csv")
+
+```
+
+## Including columne names
+
+```{r}
+colnames(Hscore_2015)
+colnames(Hscore_2016)
+colnames(Hscore_2017)
+
+```
+# Rename the columnes to make them consistent
+```{r}
+Hscore_2015 <- rename(Hscore_2015,"Happiness_Score" ="Happiness Score","Happiness_Rank" = "Happiness Rank" ,"Economy" = "Economy (GDP per Capita)","Health"="Health (Life Expectancy)","Trust"="Trust (Government Corruption)", "Dystopia_Residual" = "Dystopia Residual") 
+Hscore_2016 <- rename(Hscore_2016,"Happiness_Score" ="Happiness Score","Happiness_Rank" = "Happiness Rank","Economy" = "Economy (GDP per Capita)","Health"="Health (Life Expectancy)","Trust"="Trust (Government Corruption)", "Dystopia_Residual" = "Dystopia Residual") 
+Hscore_2017 <- rename(Hscore_2017,"Happiness_Score" ="Happiness.Score","Happiness_Rank" = "Happiness.Rank","Lower Confidence Interval" = "Whisker.low","Upper Confidence Interval" = "Whisker.high","Economy" = "Economy..GDP.per.Capita.","Health"="Health..Life.Expectancy.","Trust"="Trust..Government.Corruption.", "Dystopia_Residual" = "Dystopia.Residual") 
+```
+# Lets check out the changes
+```{r}
+str(Hscore_2015)
+str(Hscore_2016)
+str(Hscore_2017)
+```
+
+# number of observations eliminating duplicates
+```{r}
+n_distinct(Hscore_2015)
+n_distinct(Hscore_2016)
+n_distinct(Hscore_2017)
+
+```
+# number of rows in years
+```{r}
+nrow(Hscore_2015)
+nrow(Hscore_2016)
+nrow(Hscore_2017)
+
+```
+
+# Bind the data for further calculations
+```{r}
+Total <- bind_rows(Hscore_2015, Hscore_2016, Hscore_2017)
+View(Total)
+
+```
+
+
+# Inspect the new table that has been created
+
+```{r}
+colnames(Total)  #List of column names
+nrow(Total)  #How many rows are in data frame?
+dim(Total)  #Dimensions of the data frame?
+head(Total)  #See the first 6 rows of data frame.  Also tail(all_trips)
+str(Total)  #See list of columns and data types (numeric, character, etc)
+summary(Total)  #Statistical summary of data. Mainly for numerics
+View(Total)
+```
+
+```{r}
+mean(Total$`Happiness_Score`) #straight average (total score / n)
+median(Total$`Happiness_Score`) #midpoint number in the ascending array of score
+max(Total$`Happiness_Score`) #high score
+min(Total$`Happiness_Score`) #low score
+sd(Total$Happiness_Score,na.rm = FALSE)
+```
+# Provide summary
+```{r}
+summary(Total$`Happiness_Score`)
+```
+# Find aggregation of Score and Family
+
+```{r}
+
+aggregate(Total$`Happiness_Score` ~ Total$Family, FUN = mean)
+aggregate(Total$`Happiness_Score` ~ Total$Family, FUN = median)
+aggregate(Total$`Happiness_Score` ~ Total$Family, FUN = max)
+aggregate(Total$`Happiness_Score` ~ Total$Family, FUN = min)
+
+```
+# Let's aggregrate the data
+```{r}
+aggregate(Total$`Happiness_Score` ~ Total$Family + Total$`Economy`, FUN = mean)
+```
+# Plotting the graph
+
+```{r}
+# Let's visualize the happiness score by Family
+Total %>% 
+  group_by() %>% 
+  summarise(Family, Economy, average_Happiness_Score = mean(Happiness_Score)) %>% 
+  arrange(Family,Economy)  %>% 
+  ggplot(aes(x = Family, y = average_Happiness_Score, fill = Economy)) +
+  geom_point( position = "jitter") +
+  labs(title = "Relationship between Family and Average Happiness Score")
+```
