@@ -7,8 +7,8 @@ output:
   html_document: default
 ---
 # Install required packages
-```{r setup, include=FALSE}
-library("tidyverse")
+```{r setup, echo=FALSE}
+library(tidyverse)
 library(ggplot2)
 ```
 
@@ -60,7 +60,6 @@ nrow(Hscore_2017)
 # Bind the data for further calculations
 ```{r}
 Total <- bind_rows(Hscore_2015, Hscore_2016, Hscore_2017)
-View(Total)
 
 ```
 
@@ -74,7 +73,7 @@ dim(Total)  #Dimensions of the data frame?
 head(Total)  #See the first 6 rows of data frame.  Also tail(all_trips)
 str(Total)  #See list of columns and data types (numeric, character, etc)
 summary(Total)  #Statistical summary of data. Mainly for numerics
-View(Total)
+
 ```
 
 ```{r}
@@ -107,10 +106,133 @@ aggregate(Total$`Happiness_Score` ~ Total$Family + Total$`Economy`, FUN = mean)
 ```{r}
 # Let's visualize the happiness score by Family
 Total %>% 
-  group_by() %>% 
-  summarise(Family, Economy, average_Happiness_Score = mean(Happiness_Score)) %>% 
-  arrange(Family,Economy)  %>% 
-  ggplot(aes(x = Family, y = average_Happiness_Score, fill = Economy)) +
-  geom_point( position = "jitter") +
+  group_by(Family,Economy) %>% 
+  summarise(average_Happiness_Score = mean(Happiness_Score)) %>% 
+  arrange(Family,Economy)  %>% drop_na() %>%
+  ggplot(aes(x = Family, y = average_Happiness_Score, fill = Economy, color = Economy)) +
+  geom_point( position = "jitter") + geom_smooth(color = 'red') +
   labs(title = "Relationship between Family and Average Happiness Score")
 ```
+## There is a positive correlation exist between Family and Average Happiness Score that is filled with different economy GDP size.Having more size and more economy are more happy.
+
+```{r}
+# Let's visualize the happiness score by Health
+Total %>% 
+  group_by(Health,Economy) %>% 
+  summarise(average_Happiness_Score = mean(Happiness_Score)) %>% 
+  arrange(Health,Economy)  %>% drop_na() %>%
+  ggplot(aes(x = Health, y = average_Happiness_Score, fill = Economy, color = Economy)) +
+  geom_point( position = "jitter") + geom_smooth(color = 'red') +
+  labs(title = "Relationship between Health and Average Happiness Score")
+
+
+```
+# There is also a positive correlation between Health and Average Happiness Score that is filled with economy.Healthy individuals are more happy than others.
+```{r}
+# Let's visualize the happiness score in relation to different regions
+Total %>% 
+  group_by(Region, Happiness_Score) %>% 
+  summarise(average_Happiness_Score = mean(Happiness_Score)) %>% 
+  arrange(Region, Happiness_Score)  %>% drop_na() %>%
+  ggplot(aes(x = Region, y = average_Happiness_Score, color = Region, size = Region)) +
+  geom_point(position = "jitter") +
+  labs(title = "Relationship between Region and Average Happiness Score") +
+  theme(text = element_text(size = 5), plot.title = element_text(hjust = 0.5))
+
+
+```
+# We have eaisly distinguish Happiness Score of a particular Region from others.So the highest Happiness Score are of Australia, New Zealand, North America and Western Europe.
+```{r}
+# Let's visualize the happiness score in relation to different regions with respect to their freedom
+Total %>% 
+  group_by(Freedom, Region) %>% 
+  summarise(average_Happiness_Score = mean(Happiness_Score)) %>% 
+  arrange(Freedom, Region)  %>% drop_na() %>%
+  ggplot(aes(x = Region, y = average_Happiness_Score, fill = Freedom,color = Freedom, size = Freedom)) +
+  geom_point(position = "jitter") +
+  labs(title = "With Freedom") +
+  theme(legend.position = "bottom",text = element_text(size = 5), plot.title = element_text(hjust = 0.5))
+
+```
+# Regions having more freedom scale as in Australia and New Zealand are more happy than others.
+```{r}
+# Let's visualize the happiness score in relation to different regions
+Total %>% 
+  group_by(Region, Happiness_Rank) %>% 
+  summarise(average_Happiness_Score = mean(Happiness_Score)) %>% 
+  arrange(Region, Happiness_Rank)  %>% drop_na() %>%
+  ggplot(aes(x = Region, y = average_Happiness_Score, color = Happiness_Rank, size = Happiness_Rank)) +
+  geom_point(position = "jitter") +
+  labs(title = "With Happiness Rank") +
+  theme(text = element_text(size = 5), plot.title = element_text(hjust = 0.5))
+
+
+```
+# Lowest the Happiness Rank, more people are happy in the region as we are visualizing through plotting.
+
+```{r}
+# Let's visualize the happiness rank in relation to different regions
+Total %>% 
+  group_by(Region, Happiness_Rank) %>% 
+  summarise(average_Happiness_Rank = mean(Happiness_Rank)) %>% 
+  arrange(Region, Happiness_Rank)  %>% drop_na() %>%
+  ggplot(aes(x = Region, y = average_Happiness_Rank, fill = Region,color = Region, size = Region)) +
+  geom_point(position = "jitter") +
+  labs(title = "Relationship between Region and Happiness Rank") +
+  theme(legend.position = "bottom",text = element_text(size = 5), plot.title = element_text(hjust = 0.5))
+```
+# Australia, New Zealand, North America and Western Europe have lowest Rank and hence, these are the most happiest regions.
+```{r}
+# Let's visualize the happiness score by Generosity
+Total %>% 
+  group_by(Generosity,Economy) %>% 
+  summarise(average_Happiness_Score = mean(Happiness_Score)) %>% 
+  arrange(Generosity, Economy)  %>% drop_na() %>%
+  ggplot(aes(x = Generosity, y = average_Happiness_Score, fill = Economy, color = Economy)) +
+  geom_point( position = "jitter") + geom_smooth(color = 'red') +
+  labs(title = "Relationship between Generosity and Average Happiness Score")
+
+```
+# Having generosity of range 0.4-0.6 are more happy people then there is slight decline in happiness with increasing generosity. 
+
+```{r}
+# Let's visualize the happiness score by Trust
+Total %>% 
+  group_by(Trust, Happiness_Score) %>% 
+  summarise(average_Happiness_Score = mean(Happiness_Score)) %>% 
+  arrange(Trust, Happiness_Score)  %>% drop_na() %>%
+  ggplot(aes(x = Trust, y = average_Happiness_Score, fill = Trust, color = Trust)) +
+  geom_point( position = "jitter") + geom_smooth(color = 'red') +
+  labs(title = "Relationship between Trust and Average Happiness Score")
+
+```
+# People having 0.3-0.5 scale of Trust are more happy than others.
+
+
+```{r}
+# Let's visualize the happiness score by Dystopia Residual
+Total %>% 
+  group_by(Dystopia_Residual, Happiness_Score) %>% 
+  summarise(average_Happiness_Score = mean(Happiness_Score)) %>% 
+  arrange(Dystopia_Residual, Happiness_Score)  %>% drop_na() %>%
+  ggplot(aes(x = Dystopia_Residual, y = average_Happiness_Score, fill = Happiness_Score, color = Happiness_Score)) +
+  geom_point( position = "jitter") + geom_smooth(color = 'red') +
+  labs(title = "Relationship between Dystopia Residual and Average Happiness Score")
+
+```
+
+# So, more dystopia residual means people are more happy and life would be more pleasant.
+ 
+```{r}
+# Let's visualize the happiness score by Economy
+Total %>% 
+  group_by(Happiness_Score,Economy) %>% 
+  summarise(average_Happiness_Score = mean(Happiness_Score)) %>% 
+  arrange(Happiness_Score,Economy)  %>% drop_na() %>%
+  ggplot(aes(x = Economy, y = average_Happiness_Score, fill = Happiness_Score, color = Happiness_Score)) +
+  geom_point( position = "jitter") + geom_smooth(color = 'red') +
+  labs(title = "Relationship between Economy and Average Happiness Score")
+
+```
+ # More economy more happy the people are as it gives a positive correlation.
+ 
